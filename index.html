@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Premium Card Games Hub - Poker, Teen Patti & Bhabhi">
+    <title>Royal Cards — Poker · Teen Patti · Bhabhi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ GAME HUB MENU ============ -->
+<div id="hub-screen" class="screen hub-screen">
+    <div class="hub-header">
+        <div class="wallet-display">💰 Wallet: <span id="hub-wallet-amount">1000000</span></div>
+        <button class="btn-redeem" onclick="UI.promptRedeem()">Redeem Code</button>
+    </div>
+    <div class="hub-bg"></div>
+    <div class="hub-content">
+        <h1 class="hub-title">♠ Royal Cards ♥</h1>
+        <p class="hub-subtitle">Choose Your Game</p>
+        <div class="hub-games">
+            <div class="game-card" onclick="openBuyIn('poker')">
+                <div class="game-card-icon">🃏</div>
+                <h2>Texas Hold'em</h2>
+                <p>Classic poker against 5 AI opponents. Blinds escalate, bluffs matter.</p>
+                <span class="game-card-badge">6 Players</span>
+            </div>
+            <div class="game-card" onclick="openBuyIn('teenpatti')">
+                <div class="game-card-icon">🎴</div>
+                <h2>Teen Patti</h2>
+                <p>Indian 3-card poker. Play blind or seen, raise the stakes.</p>
+                <span class="game-card-badge">5 Players</span>
+            </div>
+            <div class="game-card" onclick="openBhabhiSetup()">
+                <div class="game-card-icon">♠</div>
+                <h2>Bhabhi</h2>
+                <p>Trick-taking card game. Get rid of your cards first to win.</p>
+                <span class="game-card-badge">4-6 Players</span>
+            </div>
+        </div>
+        
+        <h2 class="hub-title" style="font-size:2.5rem;margin-top:40px">🎰 Casino Floor 🎰</h2>
+        <div class="hub-games" style="margin-top:20px">
+            <div class="game-card" onclick="openBuyIn('roulette')">
+                <div class="game-card-icon">🎰</div>
+                <h2>Casino Roulette</h2>
+                <p>Classic European Roulette. Place your bets on Red, Black, or specific numbers.</p>
+                <span class="game-card-badge">Table Game</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ POKER SCREEN ============ -->
+<div id="poker-screen" class="screen hidden">
+    <header class="game-header">
+        <button class="btn-back" onclick="backToHub()">← Menu</button>
+        <button class="btn-icon" onclick="UI.showLeaderboard('poker')">🏆</button>
+        <div class="logo">♠ Texas Hold'em</div>
+        <div class="game-info">
+            <span id="pk-hand-number">Hand #1</span>
+            <span class="sep">|</span>
+            <span id="pk-blind-info">Blinds: 10/20</span>
+        </div>
+        <div class="stats-bar" id="pk-stats-bar">
+            <span id="pk-stat-wins">W: 0</span>
+            <span id="pk-stat-hands">H: 0</span>
+            <span id="pk-stat-best">Best: 0</span>
+        </div>
+    </header>
+    <div class="table-area">
+        <div class="poker-table">
+            <div class="table-felt">
+                <div class="community-area">
+                    <div id="pk-pot-display" class="pot-display">
+                        <span class="pot-label">POT</span>
+                        <span id="pk-pot-amount" class="pot-amount">0</span>
+                    </div>
+                    <div id="pk-community-cards" class="community-cards"></div>
+                    <div id="pk-strength-meter" class="strength-meter hidden">
+                        <div class="strength-bar"><div id="pk-strength-fill" class="strength-fill"></div></div>
+                        <span id="pk-strength-label" class="strength-label">High Card</span>
+                    </div>
+                </div>
+                <div id="pk-seat-0" class="player-seat seat-0" data-seat="0"></div>
+                <div id="pk-seat-1" class="player-seat seat-1" data-seat="1"></div>
+                <div id="pk-seat-2" class="player-seat seat-2" data-seat="2"></div>
+                <div id="pk-seat-3" class="player-seat seat-3" data-seat="3"></div>
+                <div id="pk-seat-4" class="player-seat seat-4" data-seat="4"></div>
+                <div id="pk-seat-5" class="player-seat seat-5" data-seat="5"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Turn timer -->
+    <div id="pk-timer-bar" class="timer-bar hidden"><div id="pk-timer-fill" class="timer-fill"></div></div>
+    <!-- Action Panel -->
+    <div id="pk-action-panel" class="action-panel hidden">
+        <div class="action-buttons">
+            <button class="action-btn btn-fold" onclick="playerAction('fold')"><span class="btn-label">Fold</span><span class="shortcut-hint">F</span></button>
+            <button class="action-btn btn-check" onclick="playerAction('call')"><span class="btn-label" id="pk-cc-label">Check</span><span class="btn-amount" id="pk-cc-amount"></span><span class="shortcut-hint">C</span></button>
+            <button class="action-btn btn-raise" onclick="playerAction('raise')"><span class="btn-label" id="pk-raise-label">Raise</span><span class="btn-amount" id="pk-raise-amount"></span><span class="shortcut-hint">R</span></button>
+            <button class="action-btn btn-allin" onclick="playerAction('allin')"><span class="btn-label">All In</span><span class="shortcut-hint">A</span></button>
+        </div>
+        <div class="raise-controls">
+            <button class="raise-preset" onclick="setRaisePreset(0.5)">½ Pot</button>
+            <button class="raise-preset" onclick="setRaisePreset(0.75)">¾ Pot</button>
+            <button class="raise-preset" onclick="setRaisePreset(1)">Pot</button>
+            <input type="range" id="pk-raise-slider" class="raise-slider" min="0" max="1000" value="40" oninput="updateRaiseDisplay()">
+            <span id="pk-raise-value" class="raise-value">40</span>
+        </div>
+    </div>
+    <div id="pk-game-log" class="game-log"><div class="log-header">Game Log</div><div id="pk-log-content" class="log-content"></div></div>
+    <div id="pk-winner-overlay" class="winner-overlay hidden"><div id="pk-winner-msg" class="winner-message"></div></div>
+    <button id="pk-btn-next" class="btn-next-hand hidden" onclick="nextHand()">Next Hand →</button>
+    <div id="pk-gameover" class="game-over-overlay hidden">
+        <div class="game-over-content"><h2 id="pk-go-title"></h2><p id="pk-go-msg"></p><button class="btn-gold" onclick="backToHub()"><span>Back to Menu</span></button></div>
+    </div>
+</div>
+
+<!-- ============ TEEN PATTI SCREEN ============ -->
+<div id="tp-screen" class="screen hidden">
+    <header class="game-header">
+        <button class="btn-back" onclick="backToHub()">← Menu</button>
+        <button class="btn-icon" onclick="UI.showLeaderboard('teenpatti')">🏆</button>
+        <div class="logo">🎴 Teen Patti</div>
+        <div class="game-info">
+            <span id="tp-round-number">Round #1</span>
+            <span class="sep">|</span>
+            <span id="tp-boot-info">Boot: 10</span>
+        </div>
+    </header>
+    <div class="table-area">
+        <div class="poker-table">
+            <div class="table-felt tp-felt">
+                <div class="community-area">
+                    <div id="tp-pot-display" class="pot-display">
+                        <span class="pot-label">POT</span>
+                        <span id="tp-pot-amount" class="pot-amount">0</span>
+                    </div>
+                    <div id="tp-strength-meter" class="strength-meter hidden">
+                        <div class="strength-bar"><div id="tp-strength-fill" class="strength-fill"></div></div>
+                        <span id="tp-strength-label" class="strength-label"></span>
+                    </div>
+                </div>
+                <div id="tp-seat-0" class="player-seat seat-0" data-seat="0"></div>
+                <div id="tp-seat-1" class="player-seat seat-1" data-seat="1"></div>
+                <div id="tp-seat-2" class="player-seat seat-2" data-seat="2"></div>
+                <div id="tp-seat-3" class="player-seat seat-3" data-seat="3"></div>
+                <div id="tp-seat-4" class="player-seat seat-4" data-seat="4"></div>
+            </div>
+        </div>
+    </div>
+    <div id="tp-action-panel" class="action-panel hidden">
+        <div class="action-buttons">
+            <button class="action-btn btn-fold" onclick="tpAction('fold')"><span class="btn-label">Pack</span></button>
+            <button class="action-btn btn-check" onclick="tpAction('call')"><span class="btn-label" id="tp-call-label">Chaal</span><span class="btn-amount" id="tp-call-amount"></span></button>
+            <button class="action-btn btn-raise" onclick="tpAction('raise')"><span class="btn-label">Raise</span><span class="btn-amount" id="tp-raise-amount"></span></button>
+            <button id="tp-btn-sideshow" class="action-btn btn-check hidden" onclick="tpAction('sideshow')"><span class="btn-label">Side Show</span><span class="btn-amount" id="tp-sideshow-amount"></span></button>
+            <button id="tp-btn-see" class="action-btn btn-see" onclick="tpAction('see')"><span class="btn-label">See Cards</span></button>
+            <button id="tp-btn-show" class="action-btn btn-allin hidden" onclick="tpAction('show')"><span class="btn-label">Show</span></button>
+        </div>
+    </div>
+    <div id="tp-game-log" class="game-log"><div class="log-header">Game Log</div><div id="tp-log-content" class="log-content"></div></div>
+    <div id="tp-winner-overlay" class="winner-overlay hidden"><div id="tp-winner-msg" class="winner-message"></div></div>
+    <button id="tp-btn-next" class="btn-next-hand hidden" onclick="tpNextRound()">Next Round →</button>
+    <div id="tp-gameover" class="game-over-overlay hidden">
+        <div class="game-over-content"><h2 id="tp-go-title"></h2><p id="tp-go-msg"></p><button class="btn-gold" onclick="backToHub()"><span>Back to Menu</span></button></div>
+    </div>
+</div>
+
+<!-- ============ BHABHI SCREEN ============ -->
+<div id="bh-screen" class="screen hidden">
+    <header class="game-header">
+        <button class="btn-back" onclick="backToHub()">← Menu</button>
+        <button class="btn-icon" onclick="UI.showLeaderboard('bhabhi')">🏆</button>
+        <div class="logo">♠ Bhabhi</div>
+        <div class="game-info">
+            <span id="bh-trick-info">Trick #1</span>
+        </div>
+    </header>
+    <div class="table-area">
+        <div class="bhabhi-table">
+            <div class="table-felt bh-felt">
+                <!-- Trick pile in center -->
+                <div class="bh-trick-area">
+                    <div id="bh-trick-cards" class="bh-trick-cards"></div>
+                    <div id="bh-lead-suit" class="bh-lead-suit"></div>
+                </div>
+                <div id="bh-seat-0" class="player-seat bh-seat-0" data-seat="0"></div>
+                <div id="bh-seat-1" class="player-seat bh-seat-1" data-seat="1"></div>
+                <div id="bh-seat-2" class="player-seat bh-seat-2" data-seat="2"></div>
+                <div id="bh-seat-3" class="player-seat bh-seat-3" data-seat="3"></div>
+                <div id="bh-seat-4" class="player-seat bh-seat-4" data-seat="4"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Human hand at bottom -->
+    <div id="bh-my-hand" class="bh-my-hand"></div>
+    <div id="bh-game-log" class="game-log"><div class="log-header">Game Log</div><div id="bh-log-content" class="log-content"></div></div>
+    <div id="bh-winner-overlay" class="winner-overlay hidden"><div id="bh-winner-msg" class="winner-message"></div></div>
+    <div id="bh-gameover" class="game-over-overlay hidden">
+        <div class="game-over-content"><h2 id="bh-go-title"></h2><p id="bh-go-msg"></p><button class="btn-gold" onclick="backToHub()"><span>Back to Menu</span></button></div>
+    </div>
+</div>
+
+<!-- ============ ROULETTE SCREEN ============ -->
+<div id="roulette-screen" class="screen hidden" style="overflow-y:auto">
+    <header class="game-header">
+        <button class="btn-back" onclick="backToHub()">← Cash Out</button>
+        <div class="logo">🎰 Casino Roulette</div>
+        <div class="game-info">Wager: <span id="roulette-wager">0</span></div>
+    </header>
+    <div class="game-table roulette-table" style="padding-top:80px; padding-bottom:50px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:auto; min-height:100vh;">
+        
+        <div class="roulette-wheel-container">
+            <div id="roulette-wheel-result">PLACE BETS</div>
+        </div>
+
+        <div class="roulette-info" style="text-align:center; margin: 20px 0; background:var(--glass); padding:10px 30px; border-radius:10px; border:1px solid var(--gbrd);">
+            <p style="margin-bottom:5px">Active Stack: <span id="roulette-stack" style="color:var(--gold-l); font-weight:bold; font-size:1.5rem">0</span></p>
+            <p>Total Bets: <span id="roulette-total-bets" style="color:var(--txt)">0</span></p>
+        </div>
+
+        <div class="roulette-board" id="roulette-board">
+            <!-- Board generated by JS -->
+        </div>
+
+        <div class="roulette-chip-selector" style="margin-top:15px; display:flex; gap:10px; align-items:center;">
+            <span style="color:var(--txt2);font-weight:bold;">Chip Size:</span>
+            <button id="chip-btn-1000" class="chip-btn active-chip" onclick="setBetSize(1000)">1k</button>
+            <button id="chip-btn-5000" class="chip-btn" onclick="setBetSize(5000)">5k</button>
+            <button id="chip-btn-10000" class="chip-btn" onclick="setBetSize(10000)">10k</button>
+            <button id="chip-btn-50000" class="chip-btn" onclick="setBetSize(50000)">50k</button>
+        </div>
+
+        <div class="action-panel roulette-actions" id="roulette-action-panel" style="margin-top:20px">
+            <button id="btn-roulette-clear" class="btn-back" onclick="clearRouletteBets()">Clear Bets</button>
+            <button id="btn-roulette-pull" class="btn-gold" onclick="spinRoulette()"><span>SPIN THE WHEEL</span></button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODALS ============ -->
+<!-- Bhabhi Setup -->
+<div id="bh-setup-modal" class="game-over-overlay hidden">
+    <div class="game-over-content setup-content">
+        <h2>Bhabhi Setup</h2>
+        <p>Choose number of players:</p>
+        <div class="setup-options">
+            <button class="btn-option" onclick="launchBhabhi(4)">4 Players</button>
+            <button class="btn-option" onclick="launchBhabhi(5)">5 Players</button>
+            <button class="btn-option" onclick="launchBhabhi(6)">6 Players</button>
+        </div>
+        <button class="btn-back mt-4" onclick="document.getElementById('bh-setup-modal').classList.add('hidden')">Cancel</button>
+    </div>
+</div>
+
+<!-- Leaderboard -->
+<div id="leaderboard-modal" class="game-over-overlay hidden">
+    <div class="game-over-content lb-content">
+        <h2>🏆 Leaderboard</h2>
+        <div class="lb-tabs" id="lb-tabs">
+            <button class="lb-tab active" onclick="UI.switchLbTab('poker')">Poker</button>
+            <button class="lb-tab" onclick="UI.switchLbTab('teenpatti')">Teen Patti</button>
+            <button class="lb-tab" onclick="UI.switchLbTab('bhabhi')">Bhabhi</button>
+        </div>
+        <div class="lb-list" id="lb-list">
+            <!-- Populated by JS -->
+        </div>
+        <button class="btn-gold mt-4" onclick="document.getElementById('leaderboard-modal').classList.add('hidden')"><span>Close</span></button>
+    </div>
+</div>
+
+<!-- Buy-In Modal -->
+<div id="buyin-modal" class="game-over-overlay hidden">
+    <div class="game-over-content setup-content">
+        <h2 id="buyin-title">Buy-In</h2>
+        <p>How much of your wallet do you want to bring to the table?</p>
+        <p class="wallet-balance-info">Available: <span id="buyin-available">0</span></p>
+        <input type="number" id="buyin-amount" class="buyin-input" min="1000" step="1000">
+        <div class="setup-options mt-4">
+            <button class="btn-gold" onclick="confirmBuyIn()"><span>Join Table</span></button>
+        </div>
+        <button class="btn-back mt-4" onclick="document.getElementById('buyin-modal').classList.add('hidden')">Cancel</button>
+    </div>
+</div>
+
+<script src="cards.js"></script>
+<script src="ai.js"></script>
+<script src="ui.js"></script>
+<script src="poker.js"></script>
+<script src="teenpatti.js"></script>
+<script src="bhabhi.js"></script>
+<script src="roulette.js"></script>
+<script>
+// Hub navigation
+let pendingGame = null;
+function openBuyIn(g) {
+    pendingGame = g;
+    const bal = UI.getWalletBalance();
+    
+    let title = 'Buy-In';
+    if(g==='poker') title='Poker Buy-In';
+    else if(g==='teenpatti') title='Teen Patti Buy-In';
+    else if(g==='roulette') title='Roulette Wager';
+    
+    document.getElementById('buyin-title').textContent = title;
+    document.getElementById('buyin-available').textContent = bal;
+    const input = document.getElementById('buyin-amount');
+    input.max = bal;
+    input.value = Math.min(bal, 100000); // Default suggested buy-in
+    document.getElementById('buyin-modal').classList.remove('hidden');
+}
+function confirmBuyIn() {
+    const input = document.getElementById('buyin-amount');
+    let amt = parseInt(input.value);
+    const bal = UI.getWalletBalance();
+    if (isNaN(amt) || amt < 1000) amt = 1000;
+    if (amt > bal) amt = bal;
+    
+    if (amt > 0) {
+        UI.updateWalletBalance(-amt);
+        document.getElementById('buyin-modal').classList.add('hidden');
+        document.getElementById('hub-screen').classList.add('hidden');
+        if (pendingGame === 'poker') { document.getElementById('poker-screen').classList.remove('hidden'); startPokerGame(amt); }
+        else if (pendingGame === 'teenpatti') { document.getElementById('tp-screen').classList.remove('hidden'); startTeenPatti(amt); }
+        else if (pendingGame === 'roulette') { document.getElementById('roulette-screen').classList.remove('hidden'); startRoulette(amt); }
+    } else {
+        alert("Not enough coins in wallet! Use a redeem code.");
+    }
+}
+function launchGame(g) {
+    // Legacy fallback
+    if (g === 'bhabhi') openBhabhiSetup();
+    else openBuyIn(g);
+}
+function openBhabhiSetup() { document.getElementById('bh-setup-modal').classList.remove('hidden'); }
+function launchBhabhi(players) {
+    document.getElementById('bh-setup-modal').classList.add('hidden');
+    document.getElementById('hub-screen').classList.add('hidden');
+    document.getElementById('bh-screen').classList.remove('hidden');
+    startBhabhi(players);
+}
+function backToHub() {
+    // Cash out
+    const rCash = (typeof rouletteStack !== 'undefined' ? rouletteStack : 0) + (typeof totalBetAmount !== 'undefined' ? totalBetAmount : 0);
+    UI.cashOut(
+        typeof game !== 'undefined' ? game : null,
+        typeof tpGame !== 'undefined' ? tpGame : null,
+        rCash
+    );
+    
+    if (typeof rouletteStack !== 'undefined') rouletteStack = 0;
+    if (typeof totalBetAmount !== 'undefined') totalBetAmount = 0;
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('hub-screen').classList.remove('hidden');
+    UI.refreshHubWallet();
+    
+    // Reset games
+    if (typeof resetPoker === 'function') resetPoker();
+    if (typeof resetTP === 'function') resetTP();
+    if (typeof resetBhabhi === 'function') resetBhabhi();
+}
+// Init UI on load
+window.onload = () => { UI.initWallet(); };
+</script>
+</body>
+</html>
